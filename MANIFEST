@@ -1,0 +1,21 @@
+examples/echoclient.pl
+examples/echoserver.pl
+lib/POE/Class/Client/TCP.pm
+lib/POE/Class/Client/UNIX.pm
+lib/POE/Class/Conn.pm
+lib/POE/Class/Conn/Stream.pm
+lib/POE/Class/Conn/TCPStream.pm
+lib/POE/Class/Conn/UNIXStream.pm
+lib/POE/Class/Net.pod
+lib/POE/Class/Server/TCP.pm
+lib/POE/Class/Server/UNIX.pm
+Makefile.PL
+MANIFEST			This list of files
+META.yml			Module meta-data (added by MakeMaker)
+README
+t/01_conn.t
+t/02_conn_stream.t
+t/03_conn_tcpstream.t
+t/04_conn_unixstream.t
+t/05_client-server_tcp.t
+t/06_client-server_unix.t

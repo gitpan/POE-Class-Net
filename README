@@ -1,0 +1,143 @@
+DESCRIPTION
+    POE::Class::Net - A set of base classes to do network connections with
+    POE
+
+SYNOPSIS
+        # a tcp server
+
+        package My::TCPServer::Conn;
+        use POE;
+
+        use strict;
+        use base 'POE::Class::Conn::TCPStream';
+
+        sub handler_conn_input {
+            my ($self, $input) = @_[OBJECT, ARG0];
+            return if $self->get_shutdown;
+            print "<< $input\n";
+            $self->get_wheel->put($input);
+        }
+
+        package main;
+
+        use POE qw(Class::Server::TCP);
+
+        POE::Class::Server::TCP->new(
+            conn_class => 'My::TCPServer::Conn',
+        )->start;
+
+        # a unix server
+
+        package My::UNIXServer::Conn;
+        use POE;
+
+        use strict;
+        use base 'POE::Class::Conn::UNIXStream';
+
+        sub handler_conn_input {
+            my ($self, $input) = @_[OBJECT, ARG0];
+            return if $self->get_shutdown;
+            print "<< $input\n";
+            $self->get_wheel->put($input);
+        }
+
+        package main;
+
+        use POE qw(Class::Server::UNIX);
+
+        POE::Class::Server::UNIX->new(
+            conn_class => 'My::UNIXServer::Conn',
+        )->start;
+
+        # a tcp client
+
+        package My::TCPClient::Conn;
+        use POE;
+
+        use strict;
+        use base 'POE::Class::Conn::TCPStream';
+
+        sub handler_start {
+            my ($self, $kernel) = @_[OBJECT, KERNEL];
+            $self->SUPER::handler_start(@_[1 .. $#_]);
+
+            $self->get_wheel->put("hello");
+        }
+
+        sub handler_input {
+            my ($self, $input) = @_[OBJECT, ARG0];
+            return if $self->get_shutdown;
+            print "< $input\n";
+            $self->get_wheel->put("good bye");
+            $self->yield("shutdown");
+        }
+
+        package main;
+
+        use POE qw(Class::Client::TCP);
+
+        POE::Class::Client::TCP->new(
+            remote_port    => 'echo',
+            remote_address => 'localhost',
+            conn_class     => 'My::TCPClient::Conn',
+        )->start;
+
+        # a unix client
+
+        package My::UNIXClient::Conn;
+        use POE qw(Class::Client::UNIX);
+
+        use strict;
+        use base 'POE::Class::Conn::UNIXStream';
+
+        sub handler_start {
+            my ($self, $kernel) = @_[OBJECT, KERNEL];
+            $self->SUPER::handler_start(@_[1 .. $#_]);
+
+            $self->get_wheel->put("hello");
+        }
+
+        sub handler_input {
+            my ($self, $input) = @_[OBJECT, ARG0];
+            return if $self->get_shutdown;
+            print "< $input\n";
+            $self->get_wheel->put("good bye");
+            $self->yield("shutdown");
+        }
+
+        package main;
+
+        use POE qw(Class::Client::UNIX);
+
+        POE::Class::Client::UNIX->new(
+            path       => '/tmp/foo.sock',
+            conn_class => 'My::UNIXClient::Conn',
+        )->start;
+
+        # can't forget this
+        $poe_kernel->run;
+
+DESCRIPTION
+    This is a set of base classes for writting OO socket based modules with
+    POE. Currently supported protocols are UNIX and TCP. There are plans to
+    add dgram.
+
+    WARNING WARNING WARNING This is beta code. The entire thing may change
+    tomorrow.
+
+TODO
+    Finish this document
+
+AUTHOR
+    Scott Beck <sbeck@gossamer-threads.com>
+
+SEE ALSO
+    POE::Class::Server::TCP
+    POE::Class::Server::UNIX
+    POE::Class::Client::TCP
+    POE::Class::Client::UNIX
+    POE::Class::Conn
+    POE::Class::Conn::Stream
+    POE::Class::Conn::TCPStream
+    POE::Class::Conn::UNIXStream
+
